@@ -67,6 +67,20 @@ the travel rules that apply. Users: the people organising and attending the even
   appended to `eval/results.jsonl`
 - Code entry point: `company_brain/evaluate.py`
 
+### Slack → structured event state (extractor)
+
+- Every event Slack channel is synced into Cognee (Cognee Slack integration, one document per
+  thread, re-synced every 10 min, edits/deletes reconciled); one dataset per event, many
+  channels per event (`events.json`).
+- `python -m company_brain.extract` reads each channel's threads from Cognee and has Claude
+  (structured JSON output) maintain the event state per channel in
+  `data/events/<event>/<channel_id>.json`: tasks, decisions, questions, deadlines and info, with
+  owners (Slack IDs resolved to names via Scalekit `slack_list_users`), due dates, status,
+  evidence and links to the source messages.
+- The previous state is fed back on every run, so item IDs stay stable and statuses evolve
+  (open → done) instead of being regenerated; items are never silently dropped. Live on SF Tech
+  Week: 2 channels, 247 messages → 29 items; IDs stable across runs; 51 unit tests.
+
 ## Evaluation Evidence
 
 ### Baseline Run
